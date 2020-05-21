@@ -11,7 +11,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-if __name__ == '__main__':
+def _download_all_songs() -> None:
     s = SpotifySearch()
 
     with Pool(POOL_SIZE) as pool:
@@ -21,3 +21,7 @@ if __name__ == '__main__':
     with open("song_metadata.json", "w") as filehandle:
         filehandle.write(json.dumps(song_metadata, indent=4))
     logging.info("Saved metadata file to song_metadata.json")
+
+
+if __name__ == "__main__":
+    _download_all_songs()
