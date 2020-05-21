@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class YouTubeSearch:
@@ -31,7 +31,7 @@ class YouTubeSearch:
     def _search(self) -> Dict:
         encoded_search = urllib.parse.quote(self.search_terms_str)
         url = f"https://youtube.com/results?search_query={encoded_search}&pbj=1"
-        logger.debug(f"Making request: {url}")
+        logger.info(f"Making request: {url}")
         response = requests.get(url).text
         logger.debug(f"Got response: {response}")
         response = BeautifulSoup(response, "html.parser")
