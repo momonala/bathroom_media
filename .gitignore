@@ -2,6 +2,7 @@
 .idea/
 __pycache__/
 
+tmp/
 hardware/img
 media/
 values.py

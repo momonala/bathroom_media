@@ -1,12 +1,13 @@
 import json
 import logging
 import os
-import urllib.parse
-from typing import List, Dict
-
-import requests
+from typing import Dict
+from glob import glob
+import re
+import googleapiclient.discovery
 import youtube_dl
-from bs4 import BeautifulSoup
+
+from values import YOUTUBE_DATA_V3_API_KEY
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -14,13 +15,21 @@ logger.setLevel(logging.INFO)
 
 
 class YouTubeSearch:
-    def __init__(self, search_terms: dict, download: bool = True):
-        self.download = download
+    def __init__(self, search_terms: dict):
         self.search_terms = search_terms
         self.search_terms_str = f"{search_terms['track']} {search_terms['artist']}"
+        self.video = None
+        self.cached_songs = [
+            re.search(r"_(.*).mp3", x).groups()[0] for x in glob("media/*mp3")
+        ]
+        if "".join(self.search_terms_str.split()) in self.cached_songs:
+            logger.info(f"Found cached {self.search_terms_str}")
+        else:
+            self.search_and_download()
+
+    def search_and_download(self):
         self.video = self._search()
-        if self.download and self.video:
-            self._download_youtube_video()
+        self._download_youtube_video()
 
     def to_dict(self) -> Dict:
         return self.video
@@ -28,33 +37,25 @@ class YouTubeSearch:
     def to_json(self) -> str:
         return json.dumps({"videos": self.video})
 
-    def _search(self) -> Dict:
-        encoded_search = urllib.parse.quote(self.search_terms_str)
-        url = f"https://youtube.com/results?search_query={encoded_search}&pbj=1"
-        logger.info(f"Making request: {url}")
-        response = requests.get(url).text
-        logger.debug(f"Got response: {response}")
-        response = BeautifulSoup(response, "html.parser")
-        results = self._parse_html(response)
-        if not results:
-            return {}
-        return {**results[0], **self.search_terms}
+    def _search(self) -> Dict[str, str]:
+        return {"id": "0XlUsEfcKB0", "title": "test video"}
+        youtube = googleapiclient.discovery.build(
+            "youtube", "v3", developerKey=YOUTUBE_DATA_V3_API_KEY, cache_discovery=False
+        )
 
-    @staticmethod
-    def _parse_html(soup) -> List:
-        results = []
-        for video in soup.select(".yt-uix-tile-link"):
-            if video["href"].startswith("/watch?v="):
-                video_info = {
-                    "title": video["title"],
-                    "link": video["href"],
-                    "id": video["href"][video["href"].index("=") + 1 :],
-                }
-                results.append(video_info)
-        return results
+        request = youtube.search().list(
+            part="snippet", q=self.search_terms, type="video", maxResults=1,
+        )
+        response = request.execute()
+        video_id = response["items"][0]["id"]["videoId"]
+        title = response["items"][0]["snippet"]["title"]
+        logger.info(f"Youtube V3 API results: {video_id, title}")
+        return {"id": video_id, "title": title}
 
     def _download_youtube_video(self) -> None:
-        mp3_output = f"media/{self.video['id']}.mp3"
+        mp3_output = (
+            f"media/{self.video['id']}_{self.search_terms_str.replace(' ', '')}.mp3"
+        )
         if os.path.exists(mp3_output):
             logger.info(f"File {mp3_output} already exists. Skipping.")
             return
@@ -64,10 +65,10 @@ class YouTubeSearch:
             "outtmpl": "%(id)s" + ".mp4",
             "format": "bestaudio/best",
         }
-        youtube_url = f'https://www.youtube.com/{self.video["link"]}'
+        youtube_url = f'https://www.youtube.com/watch?v={self.video["id"]}'
         with youtube_dl.YoutubeDL(options) as ydl:
             ydl.download([youtube_url])
-            logger.info(f'Sucessfully downloaded video file {self.video["link"]}.')
+            logger.info(f"Sucessfully downloaded video file {self.video}.")
         try:
             # use ffmpeg to conver the .mp4 file to a .mp3
             os.system(
