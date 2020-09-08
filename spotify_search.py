@@ -8,6 +8,7 @@ from values import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 PLAYLIST_URI = "59L2W0PlCrvkX7zgq9Bzyv"
 
