@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from spotify_search import SpotifySearch
 from youtube_search import YouTubeSearch
 
-POOL_SIZE = 10
+POOL_SIZE = 5
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
