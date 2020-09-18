@@ -46,9 +46,6 @@ class SpotifySearch:
         tracks_resp = self._get_tracks(token)
         parse = partial(re.sub, pattern=fr"[{punctuation}]", repl="")
         return [
-            {
-                "track": parse(string=x["track"]["name"]),
-                "artist": parse(string=x["track"]["artists"][0]["name"]),
-            }
+            {"track": parse(string=x["track"]["name"]), "artist": parse(string=x["track"]["artists"][0]["name"]),}
             for x in tracks_resp["items"]
         ]
