@@ -6,4 +6,5 @@ tmp/
 hardware/img
 media/
 values.py
+song_metadata.json
 
