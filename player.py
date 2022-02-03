@@ -1,30 +1,36 @@
 import glob
-import os
 import subprocess
+
+import logging
 import time
 from itertools import cycle
 from random import shuffle
-from typing import Callable
+
+import paho.mqtt.client as mqtt
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+MQTT_SERVER = "192.168.0.183"
+MQTT_TOPIC = "home/bathroom_button"
+MQTT_PORT = 1883
 
 
-def _get_event_handler() -> Callable:
-    """Return an event handler based on OS (Mac vs Linux)"""
-    return {"Darwin": input, "Linux": _wait_for_button}.get(os.uname()[0])
+def on_connect(client, userdata, flags, rc):
+    """The callback for when the client receives a CONNACK response from the server."""
+    client.subscribe(MQTT_TOPIC)
+    logger.info(f'Connected to MQTT: {MQTT_SERVER=} {MQTT_TOPIC=} {MQTT_PORT=} {rc=}')
 
 
-def _wait_for_button():
-    import RPi.GPIO as GPIO
-    import time
-
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
-    GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-    while True:
-        if GPIO.input(10) == GPIO.HIGH:
-            print("Button was pushed!")
-            time.sleep(0.2)
-            return True
+def on_message(client, userdata, msg):
+    """The callback for when a PUBLISH message is received from the server."""
+    logger.info(f"Received message: {msg.topic=} {msg.payload=}")
+    _file = next(userdata['audio_files'])
+    subprocess.Popen(f"pkill mpv".split())  # kill the old player process
+    time.sleep(.1)
+    subprocess.Popen(f"mpv {_file}".split())  # start a new one
+    logger.info(f"playing: {_file}")
 
 
 if __name__ == "__main__":
@@ -32,12 +38,10 @@ if __name__ == "__main__":
     audio_files = glob.glob("media/*mp3")
     shuffle(audio_files)
     audio_files = cycle(audio_files)
-    event_handler = _get_event_handler()
 
-    while True:
-        _file = next(audio_files)
-        print(f"playing {_file}")
-        p = subprocess.Popen(f"mpv {_file}".split())
-        event_handler()
-        p.terminate()
-        time.sleep(1)
+    # setup MQTT client and subscribe to messages
+    mqtt_client = mqtt.Client(userdata={"audio_files": audio_files})
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
+    mqtt_client.connect(MQTT_SERVER, 1883)
+    mqtt_client.loop_forever()
