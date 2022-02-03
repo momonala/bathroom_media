@@ -7,4 +7,5 @@ hardware/img
 media/
 values.py
 song_metadata.json
+esp_mqtt_button/arduino_secrets.h
 
