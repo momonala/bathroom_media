@@ -13,6 +13,7 @@ const char* MQTT_TOPIC = "home/bathroom_button";
 
 // Button
 const int PUSH_BUTTON_PIN = 15;
+const int BUILTIN_LED_OVERRIDE = 2;
 int buttonState = 0;
 
 WiFiClient espClient;
@@ -25,7 +26,7 @@ void setup_wifi() {
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.println("Connecting to " + String(ssid));
-  
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
 
@@ -37,8 +38,7 @@ void setup_wifi() {
   randomSeed(micros());
 
   Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("WiFi connected. IP address: ");
   Serial.println(WiFi.localIP());
 }
 // ----------------------------------------------------------
@@ -52,8 +52,6 @@ void reconnect() {
     // Attempt to connect
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -67,26 +65,29 @@ void reconnect() {
 void setup() {
   Serial.begin(9600);
   pinMode(PUSH_BUTTON_PIN, INPUT);
-  pinMode(BUILTIN_LED, OUTPUT);
   setup_wifi();
   client.setServer(MQTT_SERVER, 1883);
+
+  // switch off built-in blue LED
+  pinMode(BUILTIN_LED_OVERRIDE, OUTPUT);
+  digitalWrite(BUILTIN_LED_OVERRIDE, HIGH);
+
 }
 
 void loop() {
   buttonState = digitalRead(PUSH_BUTTON_PIN);
-  Serial.println("buttonState: " + String(buttonState));
+//  Serial.println("buttonState: " + String(buttonState));
 
   if (buttonState > 0) {
     // reconnect to MQTT if needed.
     if (!client.connected()) {reconnect();}
     client.loop();
-  
+
     // publish message
     client.publish(MQTT_TOPIC, "pressed");
-    digitalWrite(BUILTIN_LED, HIGH);
+    digitalWrite(BUILTIN_LED_OVERRIDE, LOW);
     delay(1000);
-    digitalWrite(BUILTIN_LED, LOW);
+    digitalWrite(BUILTIN_LED_OVERRIDE, HIGH);
   }
-
   delay(100);
 }
