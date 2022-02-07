@@ -21,6 +21,12 @@ The playlist is generated on Spotify and can be periodically synced locally. Unf
 SPOTIFY_CLIENT_ID: str = ""
 SPOTIFY_CLIENT_SECRET: str = ""
 PLAYLIST_URI: str = ""
+```
+
+3. Populate `arduino_secrets.h` with your credentials:
+```c++
+#define SECRET_SSID "SSID"
+#define SECRET_PASS "PASSOWRD"
 ``` 
 
 3. Run `mkdir media`
@@ -48,7 +54,8 @@ allow_anonymous true
  [Install]
  WantedBy=multi-user.target
 ```
-   3. create the file `/lib/systemd/system/bathroom_button.service`
+
+   2. create the file `/lib/systemd/system/bathroom_button.service`
 ```
 [Unit]
  Description=Bathroom Button
@@ -56,7 +63,7 @@ allow_anonymous true
 
  [Service]
  Type=idle
- ExecStart=/usr/bin/python3 /home/pi/bathroom_media/player.py > /home/pi/logs/bathroom_player.log 2>&1
+ ExecStart=/usr/bin/python3 /home/pi/bathroom_media/player.py
  User=pi
 
  [Install]
