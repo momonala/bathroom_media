@@ -35,7 +35,7 @@ def on_message(client, userdata, msg):
 
 if __name__ == "__main__":
     # cycle through .mp3 files in /media, skip song if event trigger. If no files in cwd, try full pi path
-    audio_files = glob.glob("media/*mp3") or glob.glob("/home/pi/bathroom_media/media/*mp3")
+    audio_files = glob.glob("media/*mp3")
     shuffle(audio_files)
     audio_files = cycle(audio_files)
 
