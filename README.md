@@ -55,15 +55,16 @@ allow_anonymous true
  WantedBy=multi-user.target
 ```
 
-   2. create the file `/lib/systemd/system/bathroom_button.service`
+   2. create the file `/lib/systemd/system/projects_bathroom_button.service`
 ```
 [Unit]
  Description=Bathroom Button
  After=multi-user.target
 
  [Service]
+ WorkingDirectory=/home/pi/bathroom_media
  Type=idle
- ExecStart=/usr/bin/python3 /home/pi/bathroom_media/player.py
+ ExecStart=/usr/bin/python3 player.py
  User=pi
 
  [Install]
@@ -72,12 +73,12 @@ allow_anonymous true
 8. Start the services. In the terminal execute:
 ```
 sudo chmod 644 /lib/systemd/system/mqtt.service
-sudo chmod 644 /lib/systemd/system/bathroom_button.service
+sudo chmod 644 /lib/systemd/system/projects_bathroom_button.service
 
 sudo systemctl daemon-reload
 
 sudo systemctl enable mqtt.service
-sudo systemctl enable bathroom_button.service
+sudo systemctl enable projects_bathroom_button.service
 
 sudo reboot
 ```
