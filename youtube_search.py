@@ -18,6 +18,10 @@ def parse_search_terms(search_terms: Dict) -> Tuple[str, str]:
 
 def download_youtube_video_if_needed(search_terms: Dict):
     search_terms_str, mp3_output = parse_search_terms(search_terms)
+    if os.path.exists(mp3_output):
+        logger.info(f"File {mp3_output} already exists. Skipping.")
+        return
+
     logger.info(f"Searching Youtube for {search_terms_str=}")
     video_params = _youtube_search(search_terms_str)
     _download_youtube_video(video_params, mp3_output)
@@ -31,10 +35,6 @@ def _youtube_search(search_terms: str) -> Dict[str, str]:
 
 
 def _download_youtube_video(video_params: Dict[str, str], mp3_output: str) -> None:
-    if os.path.exists(mp3_output):
-        logger.info(f"File {mp3_output} already exists. Skipping.")
-        return
-
     options = {
         # todo youtube-dl issue, cant download only audio, getting codec
         # issue
