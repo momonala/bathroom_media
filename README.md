@@ -29,18 +29,19 @@ PLAYLIST_URI: str = ""
 #define SECRET_PASS "PASSOWRD"
 ``` 
 
-3. Run `mkdir media`
-4. Create cached media playlist: `python download_songs.py`
-5. Install `mpv` command line music player: `sudo apt-get install mpv`
-6. Install MQTT pub/sub service (and debugging tools): `sudo apt-get install mosquitto mosquitto-clients -y`
-7. Update MQTT config `/etc/mosquitto/conf.d/mosquitto.conf` to listen to external ports with:
+4. Run `mkdir media`
+5. Install `ffmpeg`: `sudo apt-get install ffmpeg`
+6. Create cached media playlist: `python download_songs.py`
+7. Install `mpv` command line music player: `sudo apt-get install mpv`
+8. Install `mqtt` pub/sub service (and debugging tools): `sudo apt-get install mosquitto mosquitto-clients -y`
+9. Update MQTT config to listen to external ports with: `sudo /etc/mosquitto/conf.d/mosquitto.conf`
 
 ```
 listener 1883
 allow_anonymous true
 ```
-7. Setup `systemd` to run MQTT and `player.py` as background services:
-   1. create the file: `/lib/systemd/system/mqtt.service`. Note that we manually set our config file with `-c`.
+10. Setup `systemd` to run MQTT and `player.py` as background services:
+    1. create the file: `/lib/systemd/system/mqtt.service`. Note that we manually set our config file with `-c`.
 ```
  [Unit]
  Description=Custom MQTT Server
@@ -49,7 +50,7 @@ allow_anonymous true
  [Service]
  Type=idle
  ExecStart=sudo mosquitto -c /etc/mosquitto/conf.d/mosquitto.conf
- User=pi
+ User=mnalavadi
 
  [Install]
  WantedBy=multi-user.target
@@ -62,24 +63,31 @@ allow_anonymous true
  After=multi-user.target
 
  [Service]
- WorkingDirectory=/home/pi/bathroom_media
+ WorkingDirectory=/home/mnalavadi/bathroom_media
  Type=idle
  ExecStart=/usr/bin/python3 player.py
- User=pi
+ User=mnalavadi
 
  [Install]
  WantedBy=multi-user.target
 ```
-8. Start the services. In the terminal execute:
+11. Start the services. In the terminal execute:
 ```
 sudo chmod 644 /lib/systemd/system/mqtt.service
 sudo chmod 644 /lib/systemd/system/projects_bathroom_button.service
 
 sudo systemctl daemon-reload
+sudo systemctl daemon-reexec
 
 sudo systemctl enable mqtt.service
 sudo systemctl enable projects_bathroom_button.service
 
 sudo reboot
 ```
+
+12. View logs:
+```
+journalctl -u mqtt.service
+journalctl -u projects_bathroom_button.service
+
 The services are now running in the background! You should be able to click your button and live happily again.
