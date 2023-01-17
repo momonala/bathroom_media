@@ -84,4 +84,10 @@ sudo systemctl enable projects_bathroom_button.service
 
 sudo reboot
 ```
+
+12. View logs:
+```
+journalctl -u mqtt.service
+journalctl -u projects_bathroom_button.service
+
 The services are now running in the background! You should be able to click your button and live happily again.
