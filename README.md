@@ -15,7 +15,7 @@ The playlist is generated on Spotify and can be periodically synced locally. Unf
 
 ## Setup Raspberry Pi: 
 
-1. Install requirements (python 3) `pip install -r requirements.txt`
+1. Install requirements (python 3) `poetry install`
 2. Populate `values.py` with your credentials:
 ```python
 SPOTIFY_CLIENT_ID: str = ""
@@ -30,17 +30,16 @@ PLAYLIST_URI: str = ""
 ``` 
 
 4. Run `mkdir media`
-5. Install `ffmpeg`: `sudo apt-get install ffmpeg`
-6. Create cached media playlist: `python download_songs.py`
-7. Install `mpv` command line music player: `sudo apt-get install mpv`
-8. Install `mqtt` pub/sub service (and debugging tools): `sudo apt-get install mosquitto mosquitto-clients -y`
-9. Update MQTT config to listen to external ports with: `sudo /etc/mosquitto/conf.d/mosquitto.conf`
+5. Create cached media playlist: `python download_songs.py`
+6. Install `ffmpeg, madplay, mqtt`: `sudo apt-get install ffmpeg madplay mosquitto mosquitto-clients -y`
+7. Update MQTT config to listen to external ports with: `sudo nano /etc/mosquitto/conf.d/mosquitto.conf`
 
 ```
 listener 1883
 allow_anonymous true
 ```
-10. Setup `systemd` to run MQTT and `player.py` as background services:
+
+8. Setup `systemd` to run MQTT and `player.py` as background services:
     1. create the file: `/lib/systemd/system/mqtt.service`. Note that we manually set our config file with `-c`.
 ```
  [Unit]
@@ -65,13 +64,13 @@ allow_anonymous true
  [Service]
  WorkingDirectory=/home/mnalavadi/bathroom_media
  Type=idle
- ExecStart=/usr/bin/python3 player.py
+ ExecStart=/home/mnalavadi/miniforge3/envs/bathroom_media/bin/python player.py
  User=mnalavadi
 
  [Install]
  WantedBy=multi-user.target
 ```
-11. Start the services. In the terminal execute:
+9. Start the services. In the terminal execute:
 ```
 sudo chmod 644 /lib/systemd/system/mqtt.service
 sudo chmod 644 /lib/systemd/system/projects_bathroom_button.service
@@ -85,7 +84,7 @@ sudo systemctl enable projects_bathroom_button.service
 sudo reboot
 ```
 
-12. View logs:
+10. View logs:
 ```
 journalctl -u mqtt.service
 journalctl -u projects_bathroom_button.service

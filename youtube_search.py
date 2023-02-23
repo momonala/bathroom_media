@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict, Tuple
 
-import youtube_dl
+import yt_dlp as youtube_dl
 from youtubesearchpython import VideosSearch
 
 logging.basicConfig()

@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 110
+target-version = ['py311']
+include = '\.py'
+
+[tool.poetry]
+name = "bathroom-media"
+version = "0.1.0"
+description = ""
+authors = ["momonala <mnalavadi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "bathroom_media"}]
+
+[tool.poetry.dependencies]
+python = "3.11.*"
+requests = "2.*"
+youtube-search-python = "1.*"
+paho-mqtt = "1.*"
+yt-dlp = "^2024.10.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
