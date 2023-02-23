@@ -3,6 +3,7 @@ import logging
 import random
 import subprocess
 import time
+from datetime import datetime
 
 import paho.mqtt.client as mqtt
 
@@ -30,7 +31,8 @@ def on_message(_, __, msg):
     _file = random.choice(audio_files)
     subprocess.Popen(f"pkill mpv".split())  # kill the old player process
     time.sleep(.1)
-    subprocess.Popen(f"mpv {_file}".split())  # start a new one
+    volume = 100 if 9 < datetime.now().hour < 22 else 50  # half the volume if its very late/early
+    subprocess.Popen(f"mpv {_file} --volume={volume}".split())  # start a new one
     logger.info(f"playing: {_file}")
 
 
