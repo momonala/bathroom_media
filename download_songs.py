@@ -6,7 +6,7 @@ from multiprocessing import Pool, cpu_count
 from spotify_search import SpotifySearch
 from youtube_search import download_youtube_video_if_needed, parse_search_terms
 
-POOL_SIZE = cpu_count()
+POOL_SIZE = 2  # cpu_count()
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

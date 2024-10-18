@@ -64,7 +64,7 @@ allow_anonymous true
  [Service]
  WorkingDirectory=/home/mnalavadi/bathroom_media
  Type=idle
- ExecStart=/home/mnalavadi/bathroom_media/bathroom_media/bin/python player.py
+ ExecStart=/home/mnalavadi/miniforge3/envs/bathroom_media/bin/python player.py
  User=mnalavadi
 
  [Install]
