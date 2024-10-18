@@ -16,7 +16,7 @@ python = "3.11.*"
 requests = "2.*"
 youtube-search-python = "1.*"
 paho-mqtt = "1.*"
-youtube_dl>=2021.*
+youtube_dl "^2021.*"
 
 [build-system]
 requires = ["poetry-core"]
