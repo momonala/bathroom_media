@@ -29,10 +29,10 @@ def on_message(_, __, msg):
     logger.info(f"Received message: {msg.topic=} {msg.payload=}")
     audio_files = glob.glob("media/*mp3")
     _file = random.choice(audio_files)
-    subprocess.Popen(f"pkill mpv".split())  # kill the old player process
+    subprocess.Popen(f"pkill madplay".split())  # kill the old player process
     time.sleep(.1)
-    volume = 100 if 9 < datetime.now().hour < 22 else 50  # half the volume if its very late/early
-    subprocess.Popen(f"mpv {_file} --volume={volume}".split())  # start a new one
+    volume = -20 if 9 < datetime.now().hour < 22 else -35  # half the volume if its very late/early
+    subprocess.Popen(f"madplay {_file} -a={volume}".split())  # start a new song
     logger.info(f"playing: {_file}")
 
 

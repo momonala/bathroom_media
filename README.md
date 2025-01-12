@@ -31,7 +31,7 @@ PLAYLIST_URI: str = ""
 
 4. Run `mkdir media`
 5. Create cached media playlist: `python download_songs.py`
-6. Install `ffmpeg, mpv, mqtt`: `sudo apt-get install ffmpeg mpv mosquitto mosquitto-clients -y`
+6. Install `ffmpeg, madplay, mqtt`: `sudo apt-get install ffmpeg madplay mosquitto mosquitto-clients -y`
 7. Update MQTT config to listen to external ports with: `sudo nano /etc/mosquitto/conf.d/mosquitto.conf`
 
 ```
