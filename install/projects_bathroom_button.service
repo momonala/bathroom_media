@@ -1,0 +1,13 @@
+[Unit]
+ Description=Bathroom Button
+ After=multi-user.target
+
+ [Service]
+ WorkingDirectory=/home/mnalavadi/bathroom_button
+ Type=idle
+ ExecStart=/home/mnalavadi/miniconda3/envs/bathroom_button/bin/python player.py
+ User=mnalavadi
+
+ [Install]
+ WantedBy=multi-user.target
+ 

@@ -62,9 +62,9 @@ allow_anonymous true
  After=multi-user.target
 
  [Service]
- WorkingDirectory=/home/mnalavadi/bathroom_media
+ WorkingDirectory=/home/mnalavadi/bathroom_button
  Type=idle
- ExecStart=/home/mnalavadi/miniforge3/envs/bathroom_media/bin/python player.py
+ ExecStart=/home/mnalavadi/miniconda3/envs/bathroom_button/bin/python player.py
  User=mnalavadi
 
  [Install]

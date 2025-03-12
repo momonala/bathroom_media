@@ -1,0 +1,12 @@
+ [Unit]
+ Description=Custom MQTT Server
+ After=multi-user.target
+
+ [Service]
+ Type=idle
+ ExecStart=sudo mosquitto -c /etc/mosquitto/conf.d/mosquitto.conf
+ User=mnalavadi
+
+ [Install]
+ WantedBy=multi-user.target
+ 
