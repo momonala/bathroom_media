@@ -11,7 +11,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-MQTT_SERVER = "192.168.0.183"
+MQTT_SERVER = "192.168.2.107"
 MQTT_TOPIC = "home/bathroom_button"
 MQTT_PORT = 1883
 
