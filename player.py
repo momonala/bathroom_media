@@ -1,45 +1,110 @@
 import glob
 import logging
 import random
-import subprocess
 import time
 from datetime import datetime
 
-import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
+import vlc
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-MQTT_SERVER = "192.168.2.107"
-MQTT_TOPIC = "home/bathroom_button"
-MQTT_PORT = 1883
+MEDIA_DIR = "media/*.mp3"
+BUTTON_PIN = 17
+RELAY_PIN = 27
+
+instance = vlc.Instance("--aout=alsa", "--alsa-audio-device=hw:0,0")
+current_player = instance.media_player_new()  # reuse this for all songs
 
 
-def on_connect(client, _, __, rc):
-    """The callback for when the client receives a CONNACK response from the server."""
-    client.subscribe(MQTT_TOPIC)
-    logger.info(f'Connected to MQTT: {MQTT_SERVER=} {MQTT_TOPIC=} {MQTT_PORT=} {rc=}')
+def setup_gpio():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.LOW)
+    time.sleep(0.2)
 
 
-def on_message(_, __, msg):
-    """The callback for when a PUBLISH message is received from the server.
-    Cycle through .mp3 files in /media, skip song if event trigger.
-    """
-    logger.info(f"Received message: {msg.topic=} {msg.payload=}")
-    audio_files = glob.glob("media/*mp3")
-    _file = random.choice(audio_files)
-    subprocess.Popen(f"pkill madplay".split())  # kill the old player process
-    time.sleep(.1)
-    volume = -1 if 9 < datetime.now().hour < 22 else -10  # half the volume if its very late/early
-    subprocess.Popen(f"madplay {_file} -a {volume}".split())  # start a new song
-    logger.info(f"playing: {_file}")
+def turn_on_relay():
+    GPIO.output(RELAY_PIN, GPIO.HIGH)
+    logger.info("🔌 Relay on")
+
+
+def turn_off_relay():
+    GPIO.output(RELAY_PIN, GPIO.LOW)
+    logger.info("💤 Relay off")
+
+
+def wait_for_press():
+    while GPIO.input(BUTTON_PIN) == 0:
+        time.sleep(0.02)
+    while GPIO.input(BUTTON_PIN) == 1:
+        time.sleep(0.01)
+    logger.info("✅ Button pressed!")
+
+
+def pick_song():
+    audio_files = glob.glob(MEDIA_DIR)
+    return random.choice(audio_files) if audio_files else None
+
+
+def stop_current_playback():
+    global current_player
+    if current_player.is_playing():
+        current_player.stop()
+
+
+def play_song(path: str):
+    global current_player
+    hour = datetime.now().hour
+    volume = 80 if 9 < hour < 22 else 50
+
+    stop_current_playback()
+    media = vlc.Media(path)
+    current_player.set_media(media)
+    current_player.audio_set_volume(volume)
+    current_player.play()
+    logger.info(f"🎶 Playing: {path}")
+    time.sleep(0.3)  # short delay to ensure the song is playing, since VLC is async
+
+
+def main():
+    setup_gpio()
+    logger.info("Ready...")
+
+    try:
+        while True:
+            wait_for_press()
+
+            song = pick_song()
+            if not song:
+                logger.error("❌ No audio files found.")
+                continue
+
+            turn_on_relay()
+            play_song(song)
+
+            # Wait for playback to finish or button press
+            while current_player.is_playing():
+                if GPIO.input(BUTTON_PIN) == 0:
+                    break
+                time.sleep(0.05)
+
+            # Playback finished or interrupted
+            if not current_player.is_playing():
+                logger.info("✅ Playback finished.")
+                turn_off_relay()
+                time.sleep(0.2)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        stop_current_playback()
+        turn_off_relay()
+        GPIO.cleanup()
 
 
 if __name__ == "__main__":
-    # setup MQTT client and subscribe to messages
-    mqtt_client = mqtt.Client()
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_message = on_message
-    mqtt_client.connect(MQTT_SERVER, 1883)
-    mqtt_client.loop_forever()
+    main()

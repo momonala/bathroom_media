@@ -3,20 +3,30 @@ line-length = 110
 target-version = ['py312']
 include = '\.py'
 
+[tool.isort]
+force_single_line = true
+
 [tool.poetry]
 name = "bathroom-media"
 version = "0.1.0"
 description = ""
-authors = ["momonala <mnalavadi@gmail.com>"]
+authors = ["momonala <tinybathroom@gmail.com>"]
 readme = "README.md"
 packages = [{include = "bathroom_button"}]
 
 [tool.poetry.dependencies]
+"RPi.GPIO" = "*"
+black = "*"
+httpx = "0.23.3"
+ipython = "*"
+isort = "*"
+paho-mqtt = "*"
+poetry = "*"
 python = "3.12.*"
-requests = "2.*"
-youtube-search-python = "1.*"
-paho-mqtt = "1.*"
-yt-dlp = "2025.*"
+python-vlc = "*"
+requests = "*"
+youtube-search-python = "*"
+yt-dlp = "*"
 
 [build-system]
 requires = ["poetry-core"]

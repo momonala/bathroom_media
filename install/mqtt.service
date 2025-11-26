@@ -5,7 +5,7 @@
  [Service]
  Type=idle
  ExecStart=sudo mosquitto -c /etc/mosquitto/conf.d/mosquitto.conf
- User=mnalavadi
+ User=tinybathroom
 
  [Install]
  WantedBy=multi-user.target

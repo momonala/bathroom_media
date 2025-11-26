@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Dict, Tuple
+from typing import Dict
+from typing import Tuple
 
 import yt_dlp as youtube_dl
 from youtubesearchpython import VideosSearch

@@ -3,11 +3,13 @@ import logging
 import re
 from functools import partial
 from string import punctuation
-from typing import Dict, List
+from typing import Dict
+from typing import List
 
 import requests
-
-from values import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, PLAYLIST_URI
+from values import PLAYLIST_URI
+from values import SPOTIFY_CLIENT_ID
+from values import SPOTIFY_CLIENT_SECRET
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -44,8 +46,11 @@ class SpotifySearch:
         token_resp = self._get_token()
         token = token_resp["access_token"]
         tracks_resp = self._get_tracks(token)
-        parse = partial(re.sub, pattern=fr"[{punctuation}]", repl="")
+        parse = partial(re.sub, pattern=rf"[{punctuation}]", repl="")
         return [
-            {"track": parse(string=x["track"]["name"]), "artist": parse(string=x["track"]["artists"][0]["name"]),}
+            {
+                "track": parse(string=x["track"]["name"]),
+                "artist": parse(string=x["track"]["artists"][0]["name"]),
+            }
             for x in tracks_resp["items"]
         ]

@@ -1,13 +1,15 @@
 [Unit]
  Description=Bathroom Button
- After=multi-user.target
+ After=multi-user.target systemd-udevd.service
+ Wants=systemd-udevd.service
 
- [Service]
- WorkingDirectory=/home/mnalavadi/bathroom_button
- Type=idle
- ExecStart=/home/mnalavadi/miniconda3/envs/bathroom_button/bin/python player.py
- User=mnalavadi
+[Service]
+ WorkingDirectory=/home/tinybathroom/bathroom_media
+ ExecStartPre=/bin/sleep 1
+ ExecStart=/home/tinybathroom/miniconda3/envs/bathroom_button/bin/python player.py
+ Restart=on-failure
+ User=tinybathroom
+ Environment=PYTHONUNBUFFERED=1
 
- [Install]
+[Install]
  WantedBy=multi-user.target
- 
