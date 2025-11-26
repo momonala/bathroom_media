@@ -3,10 +3,12 @@
  After=multi-user.target
 
  [Service]
- WorkingDirectory=/home/mnalavadi/bathroom_button
+ WorkingDirectory=/home/tinybathroom/bathroom_media
  Type=idle
- ExecStart=/home/mnalavadi/miniconda3/envs/bathroom_button/bin/python player.py
- User=mnalavadi
+ ExecStart=/home/tinybathroom/miniconda3/envs/bathroom_button/bin/python player.py
+ Restart=on-failure
+ User=root
+ Environment=PYTHONUNBUFFERED=1
 
  [Install]
  WantedBy=multi-user.target

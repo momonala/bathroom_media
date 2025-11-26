@@ -49,7 +49,7 @@ allow_anonymous true
  [Service]
  Type=idle
  ExecStart=sudo mosquitto -c /etc/mosquitto/conf.d/mosquitto.conf
- User=mnalavadi
+ User=tinybathroom
 
  [Install]
  WantedBy=multi-user.target
@@ -62,10 +62,10 @@ allow_anonymous true
  After=multi-user.target
 
  [Service]
- WorkingDirectory=/home/mnalavadi/bathroom_button
+ WorkingDirectory=/home/tinybathroom/bathroom_button
  Type=idle
- ExecStart=/home/mnalavadi/miniconda3/envs/bathroom_button/bin/python player.py
- User=mnalavadi
+ ExecStart=/home/tinybathroom/miniconda3/envs/bathroom_button/bin/python player.py
+ User=tinybathroom
 
  [Install]
  WantedBy=multi-user.target

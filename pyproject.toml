@@ -7,16 +7,18 @@ include = '\.py'
 name = "bathroom-media"
 version = "0.1.0"
 description = ""
-authors = ["momonala <mnalavadi@gmail.com>"]
+authors = ["momonala <tinybathroom@gmail.com>"]
 readme = "README.md"
 packages = [{include = "bathroom_button"}]
 
 [tool.poetry.dependencies]
 python = "3.12.*"
-requests = "2.*"
-youtube-search-python = "1.*"
-paho-mqtt = "1.*"
-yt-dlp = "2025.*"
+requests = "*"
+youtube-search-python = "*"
+paho-mqtt = "*"
+yt-dlp = "*"
+httpx = "0.23.3"
+"RPi.GPIO" = "*"
 
 [build-system]
 requires = ["poetry-core"]
