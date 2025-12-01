@@ -1,112 +1,196 @@
-# Bathroom Music Button
+# Bathroom Music Button 🚽🎵
 
-A simple hacker's way to have music in your bathroom.
+A hacker's way to listen to music in the toilet. 
 
-Sometimes you want music in the bathroom but don’t want to deal with choosing a song, connecting your phone, or manually pausing playback. This project plays a random song **whenever you press a physical button** — using a Raspberry Pi, a push button, a relay, and a speaker.
-
----
-
-## How it works
-
-- A **physical push button** is connected to a Raspberry Pi GPIO pin.  
-- When pressed, the Pi plays a random song from a locally cached playlist using **VLC**.  
-- A **relay** turns on whenever a song is playing and turns off when playback stops.  
-- Songs are stored in `/media` as local MP3 files.
+Sometimes you want music in the bathroom but don't want to deal a phone, Bluetooth, decisions. You just wnat vibes. This overengineered solution plays a random song from a Spotify-synced playlist whenever you press a physical button.
 
 ---
 
-## Hardware
+## Tech Stack
 
-- Raspberry Pi (headless or with desktop)  
-- Push button  
-- Relay module to drive an external device (optional, for LED or sound indicator)  
-- Speaker connected to Pi’s audio output
-
-**GPIO pin connections:**
-
-| Component | GPIO Pin |
-|-----------|----------|
-| Button    | 17       |
-| Relay     | 27       |
+`Python 3.12` · `VLC (python-vlc)` · `Raspberry Pi GPIO` · `Spotify API` · `YouTube (yt-dlp)` · `Poetry`
 
 ---
 
-## Workflow Diagram
+## Architecture
 
 ```mermaid
-flowchart TD
-    A[Button Pressed (GPIO 17)] --> B[Pi detects press]
-    B --> C[Pick random MP3 from /media]
-    C --> D[Stop current playback if any]
-    D --> E[Set new media to VLC MediaPlayer]
-    E --> F[Start playback]
-    F --> G[Turn on relay (GPIO 27)]
-    F --> H[Monitor playback]
-    H -->|Finished| I[Turn off relay]
-    H -->|Button pressed again| D
+flowchart LR
+    subgraph Sync["Song Sync (offline)"]
+        Spotify[Spotify API] --> |playlist tracks| YT[YouTube Search]
+        YT --> |download| Media[(media/*.mp3)]
+    end
 
+    subgraph Playback["Playback (runtime)"]
+        Button[GPIO Button\nPin 17] --> Player[player.py]
+        Media --> Player
+        Player --> VLC[VLC Audio]
+        Player --> Relay[GPIO Relay\nPin 27]
+    end
+```
 
-## Setup
+**Data Flow:**
+1. `download_songs.py`: Fetches playlist from Spotify → searches YouTube → downloads as MP3
+2. `player.py`: Waits for button press → picks random MP3 → plays via VLC → controls relay
 
-### 1. Install dependencies
+---
+
+## Prerequisites
+
+- Raspberry Pi (any model with GPIO)
+- Python 3.12+
+- VLC media player (`sudo apt install vlc`)
+- ffmpeg (`sudo apt install ffmpeg`)
+- Spotify Developer Account (free) for API credentials
+- Poetry or Conda (for dependency management)
+
+**Hardware:**
+
+| Component | GPIO Pin (BCM) |
+|-----------|----------------|
+| Push Button | 17 |
+| Relay Module | 27 |
+
+---
+
+## Installation
+
+### 1. Clone and install dependencies
+
+```bash
+git clone <repo-url>
+cd bathroom_media
+
+# Using the install script (sets up conda + poetry + systemd)
 ./install/install.sh
 
-### 2. Prepare media folder
+# Or manually with poetry
+poetry install --no-root
+```
+
+### 2. Configure Spotify credentials
+
+Create `values.py` in the project root:
+
+```python
+SPOTIFY_CLIENT_ID: str = "your_client_id"         # Required - from Spotify Developer Dashboard
+SPOTIFY_CLIENT_SECRET: str = "your_client_secret" # Required - from Spotify Developer Dashboard
+PLAYLIST_URI: str = "your_playlist_id"            # Required - the ID from your playlist URL
+```
+
+> Get credentials at https://developer.spotify.com/dashboard
+
+### 3. Download songs
+
+```bash
 python download_songs.py
-
-### 3. Connect hardware
-
-- Wire the button to GPIO 17 (with a pull-up resistor).
-
-- Wire the relay to GPIO 27.
-
-- The relay will automatically turn on when a song is playing and off when it finishes.
-
-### 4. Configure and run the script
-
-`python player.py`
-
-Press the button to play songs. The relay will indicate playback.
-
-5. Run as a background service
-
-#### Create a systemd service: `/lib/systemd/system/bathroom_button.service`
-
-```
-[Unit]
-Description=Bathroom Music Button
-After=multi-user.target
-
-[Service]
-WorkingDirectory=/home/tinybathroom/bathroom_media
-Type=idle
-ExecStart=/home/tinybathroom/.cache/pypoetry/virtualenvs/bathroom-media-*/bin/python player.py
-User=tinybathroom
-
-[Install]
-WantedBy=multi-user.target
 ```
 
-#### Enable and start the service:
+This syncs your Spotify playlist locally. Songs removed from the playlist are deleted from cache.
+
+### 4. Wire hardware
+
+- Button → GPIO 17 (uses internal pull-up resistor)
+- Relay → GPIO 27 (HIGH = on during playback)
+- Speaker → Pi audio output
+
+---
+
+## Running
+
+```bash
+python player.py
+```
+
+Press the button to play a random song. Press again during playback to skip.
+
+**Volume behavior:** 80% during daytime (9am–10pm), 50% at night.
+
+---
+
+## Project Structure
 
 ```
-sudo chmod 644 /lib/systemd/system/bathroom_button.service
+bathroom_media/
+├── player.py              # Main entry point - GPIO button handler + VLC playback
+├── download_songs.py      # Syncs Spotify playlist → YouTube → local MP3s
+├── spotify_search.py      # Spotify API client - fetches playlist tracks
+├── youtube_search.py      # YouTube search + yt-dlp download
+├── values.py              # Credentials (gitignored) - MUST CREATE
+├── media/                 # Downloaded MP3 cache (gitignored)
+├── pyproject.toml         # Poetry dependencies
+├── requirements.txt       # Pip fallback
+├── install/
+│   ├── install.sh                        # Full setup script (conda + systemd)
+│   ├── projects_bathroom_button.service  # systemd unit file
+│   ├── mosquitto.conf                    # MQTT broker config (optional)
+│   └── mqtt.service                      # MQTT systemd unit (optional)
+├── esp_mqtt_button/
+│   └── esp_mqtt_button.ino  # Arduino sketch for wireless ESP8266 button
+└── tmp/
+    └── old_player.py        # Legacy madplay-based player
+```
+
+---
+
+## Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| `media/` cache | MP3s stored as `{track}{artist}.mp3` (no spaces/punctuation). Sync deletes removed songs. |
+| Relay control | GPIO 27 goes HIGH during playback, LOW when stopped. Use for LED indicator or amp power. |
+| Volume schedule | Auto volume: 80% daytime (9am–10pm), 50% at night. Based on system time. |
+| Button debounce | Uses GPIO internal pull-up. Polling-based detection in main loop. |
+| Song selection | Random choice from `media/*.mp3` on each button press. |
+
+---
+
+## Storage
+
+| Path | Purpose |
+|------|---------|
+| `media/*.mp3` | Cached songs from Spotify playlist |
+| `values.py` | Spotify API credentials (gitignored) |
+
+---
+
+## Deployment (systemd)
+
+The install script handles this, but manually:
+
+```bash
+# Copy service file
+sudo cp install/projects_bathroom_button.service /lib/systemd/system/
+
+# Enable and start
 sudo systemctl daemon-reload
-sudo systemctl enable bathroom_button.service
-sudo systemctl start bathroom_button.service
+sudo systemctl enable projects_bathroom_button.service
+sudo systemctl start projects_bathroom_button.service
+
+# View logs
+journalctl -u projects_bathroom_button.service -f
 ```
 
-#### View logs:
+---
 
-`journalctl -u bathroom_button.service -f`
+## Deprecated: Wireless Button (ESP8266 + MQTT)
 
+An older version used ESP8266 + MQTT for wireless button triggering. This is deprecated in favor of direct GPIO. See [`README.mqtt.md`](README.mqtt.md) for historical reference.
 
-Now the script runs in the background — pressing the button will play a song and toggle the relay automatically.
+---
 
-## Notes
+## Troubleshooting
 
-- Songs are chosen randomly from /media/*.mp3.
+| Issue | Fix |
+|-------|-----|
+| No audio | Check `aplay -l` for devices. VLC config: `--alsa-audio-device=hw:0,0` |
+| GPIO permission denied | Run with `sudo` or add user to `gpio` group |
+| Spotify auth fails | Verify `values.py` credentials match your Spotify Developer app |
+| Songs not downloading | Ensure ffmpeg installed. Update yt-dlp: `pip install -U yt-dlp` |
+| Download hangs | YouTube search rate limits. `POOL_SIZE=2` in `download_songs.py` controls parallelism. |
 
-- Volume is adjusted based on the time of day (daytime vs night).
+---
 
-- VLC is used directly with ALSA (--aout=alsa) to ensure audio works headless on a Raspberry Pi.
+## License
+
+MIT — do whatever you want. just don't blame me when your bathroom catches fire.
