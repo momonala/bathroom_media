@@ -64,7 +64,7 @@ allow_anonymous true
  [Service]
  WorkingDirectory=/home/tinybathroom/bathroom_button
  Type=idle
- ExecStart=/home/tinybathroom/miniconda3/envs/bathroom_button/bin/python player.py
+ ExecStart=/home/tinybathroom/.local/bin/uv run python player.py
  User=tinybathroom
 
  [Install]
