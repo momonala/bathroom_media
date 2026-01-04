@@ -8,7 +8,7 @@ Sometimes you want music in the bathroom but don't want to deal a phone, Bluetoo
 
 ## Tech Stack
 
-`Python 3.12` · `VLC (python-vlc)` · `Raspberry Pi GPIO` · `Spotify API` · `YouTube (yt-dlp)` · `Poetry`
+`Python 3.12` · `VLC (python-vlc)` · `Raspberry Pi GPIO` · `Spotify API` · `YouTube (yt-dlp)` · `uv`
 
 ---
 
@@ -42,7 +42,7 @@ flowchart LR
 - VLC media player (`sudo apt install vlc`)
 - ffmpeg (`sudo apt install ffmpeg`)
 - Spotify Developer Account (free) for API credentials
-- Poetry or Conda (for dependency management)
+- uv (Python package manager - installed automatically by install script)
 
 **Hardware:**
 
@@ -61,11 +61,11 @@ flowchart LR
 git clone <repo-url>
 cd bathroom_media
 
-# Using the install script (sets up conda + poetry + systemd)
+# Using the install script (sets up uv + systemd)
 ./install/install.sh
 
-# Or manually with poetry
-poetry install --no-root
+# Or manually with uv
+uv sync
 ```
 
 ### 2. Configure Spotify credentials
@@ -118,10 +118,10 @@ bathroom_media/
 ├── youtube_search.py      # YouTube search + yt-dlp download
 ├── values.py              # Credentials (gitignored) - MUST CREATE
 ├── media/                 # Downloaded MP3 cache (gitignored)
-├── pyproject.toml         # Poetry dependencies
+├── pyproject.toml         # Project dependencies (PEP 621)
 ├── requirements.txt       # Pip fallback
 ├── install/
-│   ├── install.sh                        # Full setup script (conda + systemd)
+│   ├── install.sh                        # Full setup script (uv + systemd)
 │   ├── projects_bathroom_button.service  # systemd unit file
 │   ├── mosquitto.conf                    # MQTT broker config (optional)
 │   └── mqtt.service                      # MQTT systemd unit (optional)

@@ -6,7 +6,7 @@
 [Service]
  WorkingDirectory=/home/tinybathroom/bathroom_media
  ExecStartPre=/bin/sleep 1
- ExecStart=/home/tinybathroom/miniconda3/envs/bathroom_button/bin/python player.py
+ ExecStart=/home/mnalavadi/.local/bin/uv run python player.py
  Restart=on-failure
  User=tinybathroom
  Environment=PYTHONUNBUFFERED=1
