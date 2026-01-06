@@ -1,7 +1,7 @@
 service_name="bathroom_button"
 service_name_underscore="bathroom_button"
 service_port=5006
-python_version="3.12"
+
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
@@ -19,7 +19,6 @@ else
 fi
 
 echo "✅ Installing project dependencies with uv"
-cd /home/tinybathroom/bathroom_media
 uv sync
 
 echo "✅ Copying service file to systemd directory"

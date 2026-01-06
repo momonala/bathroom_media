@@ -71,11 +71,11 @@ def is_button_pressed() -> bool:
 def wait_for_button_press() -> None:
     """
     Block until user presses and releases the button.
-    
+
     Momentary button with pull-up resistor:
     - Released: reads HIGH (1)
     - Pressed: reads LOW (0)
-    
+
     We wait for both press AND release to:
     1. Avoid multiple triggers from one press
     2. Handle mechanical bounce
@@ -83,11 +83,11 @@ def wait_for_button_press() -> None:
     # Wait for press (HIGH → LOW)
     while not is_button_pressed():
         time.sleep(0.02)
-    
+
     # Wait for release (LOW → HIGH)
     while is_button_pressed():
         time.sleep(0.01)
-    
+
     logger.info("✅ Button pressed!")
 
 
@@ -119,7 +119,7 @@ def play_song(path: str):
 def wait_for_playback_or_skip() -> bool:
     """
     Block while song is playing. Return True if user skipped, False if song ended naturally.
-    
+
     Also handles button debounce on skip (waits for release).
     """
     while current_player.is_playing():
@@ -135,7 +135,7 @@ def wait_for_playback_or_skip() -> bool:
 def play_until_done() -> None:
     """
     Play songs in a loop until one finishes without being skipped.
-    
+
     - On skip: pick new song, keep playing
     - On natural end: return (caller should turn off relay)
     """
@@ -146,7 +146,7 @@ def play_until_done() -> None:
 
     while True:
         play_song(song)
-        
+
         if wait_for_playback_or_skip():
             logger.info("⏭️ Skipping to next song...")
             song = pick_song()

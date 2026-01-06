@@ -16,7 +16,7 @@ The playlist is generated on Spotify and can be periodically synced locally. Unf
 ## Setup Raspberry Pi: 
 
 1. Install requirements (python 3) `poetry install`
-2. Populate `values.py` with your credentials:
+2. Populate `src/values.py` with your credentials:
 ```python
 SPOTIFY_CLIENT_ID: str = ""
 SPOTIFY_CLIENT_SECRET: str = ""
@@ -30,7 +30,7 @@ PLAYLIST_URI: str = ""
 ``` 
 
 4. Run `mkdir media`
-5. Create cached media playlist: `python download_songs.py`
+5. Create cached media playlist: `python src/download_songs.py`
 6. Install `ffmpeg, madplay, mqtt`: `sudo apt-get install ffmpeg madplay mosquitto mosquitto-clients -y`
 7. Update MQTT config to listen to external ports with: `sudo nano /etc/mosquitto/conf.d/mosquitto.conf`
 
@@ -64,7 +64,7 @@ allow_anonymous true
  [Service]
  WorkingDirectory=/home/tinybathroom/bathroom_button
  Type=idle
- ExecStart=/home/tinybathroom/.local/bin/uv run python player.py
+ ExecStart=/home/tinybathroom/.local/bin/uv run python src/player.py
  User=tinybathroom
 
  [Install]

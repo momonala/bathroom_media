@@ -30,8 +30,8 @@ flowchart LR
 ```
 
 **Data Flow:**
-1. `download_songs.py`: Fetches playlist from Spotify → searches YouTube → downloads as MP3
-2. `player.py`: Waits for button press → picks random MP3 → plays via VLC → controls relay
+1. `src/download_songs.py`: Fetches playlist from Spotify → searches YouTube → downloads as MP3
+2. `src/player.py`: Waits for button press → picks random MP3 → plays via VLC → controls relay
 
 ---
 
@@ -70,7 +70,7 @@ uv sync
 
 ### 2. Configure Spotify credentials
 
-Create `values.py` in the project root:
+Create `src/values.py`:
 
 ```python
 SPOTIFY_CLIENT_ID: str = "your_client_id"         # Required - from Spotify Developer Dashboard
@@ -83,7 +83,7 @@ PLAYLIST_URI: str = "your_playlist_id"            # Required - the ID from your 
 ### 3. Download songs
 
 ```bash
-python download_songs.py
+python src/download_songs.py
 ```
 
 This syncs your Spotify playlist locally. Songs removed from the playlist are deleted from cache.
@@ -99,7 +99,7 @@ This syncs your Spotify playlist locally. Songs removed from the playlist are de
 ## Running
 
 ```bash
-python player.py
+python src/player.py
 ```
 
 Press the button to play a random song. Press again during playback to skip.
@@ -112,14 +112,15 @@ Press the button to play a random song. Press again during playback to skip.
 
 ```
 bathroom_media/
-├── player.py              # Main entry point - GPIO button handler + VLC playback
-├── download_songs.py      # Syncs Spotify playlist → YouTube → local MP3s
-├── spotify_search.py      # Spotify API client - fetches playlist tracks
-├── youtube_search.py      # YouTube search + yt-dlp download
-├── values.py              # Credentials (gitignored) - MUST CREATE
-├── media/                 # Downloaded MP3 cache (gitignored)
-├── pyproject.toml         # Project dependencies (PEP 621)
-├── requirements.txt       # Pip fallback
+├── src/
+│   ├── player.py           # Main entry point - GPIO button handler + VLC playback
+│   ├── download_songs.py   # Syncs Spotify playlist → YouTube → local MP3s
+│   ├── spotify_search.py   # Spotify API client - fetches playlist tracks
+│   ├── youtube_search.py   # YouTube search + yt-dlp download
+│   └── values.py           # Credentials (gitignored) - MUST CREATE
+├── media/                  # Downloaded MP3 cache (gitignored)
+├── pyproject.toml          # Project dependencies (PEP 621)
+├── requirements.txt        # Pip fallback
 ├── install/
 │   ├── install.sh                        # Full setup script (uv + systemd)
 │   ├── projects_bathroom_button.service  # systemd unit file
@@ -127,8 +128,8 @@ bathroom_media/
 │   └── mqtt.service                      # MQTT systemd unit (optional)
 ├── esp_mqtt_button/
 │   └── esp_mqtt_button.ino  # Arduino sketch for wireless ESP8266 button
-└── tmp/
-    └── old_player.py        # Legacy madplay-based player
+└── tests/
+    └── test_nothing.py      # Test suite
 ```
 
 ---
@@ -150,7 +151,7 @@ bathroom_media/
 | Path | Purpose |
 |------|---------|
 | `media/*.mp3` | Cached songs from Spotify playlist |
-| `values.py` | Spotify API credentials (gitignored) |
+| `src/values.py` | Spotify API credentials (gitignored) |
 
 ---
 
@@ -185,9 +186,9 @@ An older version used ESP8266 + MQTT for wireless button triggering. This is dep
 |-------|-----|
 | No audio | Check `aplay -l` for devices. VLC config: `--alsa-audio-device=hw:0,0` |
 | GPIO permission denied | Run with `sudo` or add user to `gpio` group |
-| Spotify auth fails | Verify `values.py` credentials match your Spotify Developer app |
+| Spotify auth fails | Verify `src/values.py` credentials match your Spotify Developer app |
 | Songs not downloading | Ensure ffmpeg installed. Update yt-dlp: `pip install -U yt-dlp` |
-| Download hangs | YouTube search rate limits. `POOL_SIZE=2` in `download_songs.py` controls parallelism. |
+| Download hangs | YouTube search rate limits. `POOL_SIZE=2` in `src/download_songs.py` controls parallelism. |
 
 ---
 
