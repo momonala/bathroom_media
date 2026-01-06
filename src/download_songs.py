@@ -3,9 +3,9 @@ import os
 from glob import glob
 from multiprocessing import Pool
 
-from spotify_search import SpotifySearch
-from youtube_search import download_youtube_video_if_needed
-from youtube_search import parse_search_terms
+from src.spotify_search import SpotifySearch
+from src.youtube_search import download_youtube_video_if_needed
+from src.youtube_search import parse_search_terms
 
 POOL_SIZE = 2  # cpu_count()
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def _download_all_songs() -> None:
+def main() -> None:
     os.makedirs("media", exist_ok=True)
     s = SpotifySearch()
     to_be_cached = [parse_search_terms(x)[1] for x in s.tracks_and_names]
@@ -28,4 +28,4 @@ def _download_all_songs() -> None:
 
 
 if __name__ == "__main__":
-    _download_all_songs()
+    main()

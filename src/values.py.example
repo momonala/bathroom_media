@@ -1,0 +1,5 @@
+# Stub values for CI/testing - copy to values.py for local development
+
+SPOTIFY_CLIENT_ID = "dummy_client_id_for_testing"
+SPOTIFY_CLIENT_SECRET = "dummy_client_secret_for_testing"
+PLAYLIST_URI = "dummy_playlist_uri"

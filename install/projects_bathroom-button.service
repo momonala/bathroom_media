@@ -4,9 +4,9 @@
  Wants=systemd-udevd.service
 
 [Service]
- WorkingDirectory=/home/tinybathroom/bathroom_media
+ WorkingDirectory=/home/tinybathroom/bathroom-button
  ExecStartPre=/bin/sleep 1
- ExecStart=/home/tinybathroom/.local/bin/uv run python player.py
+ ExecStart=/home/tinybathroom/.local/bin/uv run python src/player.py
  Restart=on-failure
  User=tinybathroom
  Environment=PYTHONUNBUFFERED=1

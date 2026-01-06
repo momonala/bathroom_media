@@ -9,8 +9,8 @@
 
 // MQTT
 const char* MQTT_SERVER = "192.168.0.183";  // IP of the MQTT broker (raspberry pi)
-const char* MQTT_TOPIC = "home/bathroom_button";
-const char* CLIENTID = "bathroom_button";
+const char* MQTT_TOPIC = "home/bathroom-button";
+const char* CLIENTID = "bathroom-button";
 
 // Button
 const int PUSH_BUTTON_PIN = 13;

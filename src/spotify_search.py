@@ -7,9 +7,10 @@ from typing import Dict
 from typing import List
 
 import requests
-from values import PLAYLIST_URI
-from values import SPOTIFY_CLIENT_ID
-from values import SPOTIFY_CLIENT_SECRET
+
+from src.values import PLAYLIST_URI
+from src.values import SPOTIFY_CLIENT_ID
+from src.values import SPOTIFY_CLIENT_SECRET
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
