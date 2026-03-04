@@ -1,4 +1,4 @@
-# Bathroom Music Button 🚽🎵
+# Bathroom Music Button
 
 [![CI](https://github.com/momonala/bathroom-media/actions/workflows/ci.yml/badge.svg)](https://github.com/momonala/bathroom-media/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/momonala/bathroom-media/branch/main/graph/badge.svg)](https://codecov.io/gh/momonala/bathroom-media)
@@ -6,12 +6,6 @@
 A hacker's way to listen to music in the toilet. 
 
 Sometimes you want music in the bathroom but don't want to deal a phone, Bluetooth, decisions. You just wnat vibes. This overengineered solution plays a random song from a Spotify-synced playlist whenever you press a physical button.
-
----
-
-## Tech Stack
-
-`Python 3.12` · `VLC (python-vlc)` · `Raspberry Pi GPIO` · `Spotify API` · `YouTube (yt-dlp)` · `uv`
 
 ---
 
@@ -73,7 +67,7 @@ uv sync
 
 ### 2. Configure Spotify credentials
 
-Create `src/values.py`:
+Copy `src/values.py.example` to `src/values.py` and fill in real credentials:
 
 ```python
 SPOTIFY_CLIENT_ID: str = "your_client_id"         # Required - from Spotify Developer Dashboard
@@ -86,7 +80,7 @@ PLAYLIST_URI: str = "your_playlist_id"            # Required - the ID from your 
 ### 3. Download songs
 
 ```bash
-python src/download_songs.py
+uv run download
 ```
 
 This syncs your Spotify playlist locally. Songs removed from the playlist are deleted from cache.
@@ -102,7 +96,7 @@ This syncs your Spotify playlist locally. Songs removed from the playlist are de
 ## Running
 
 ```bash
-python src/player.py
+uv run player
 ```
 
 Press the button to play a random song. Press again during playback to skip.
@@ -120,10 +114,11 @@ bathroom-media/
 │   ├── download_songs.py   # Syncs Spotify playlist → YouTube → local MP3s
 │   ├── spotify_search.py   # Spotify API client - fetches playlist tracks
 │   ├── youtube_search.py   # YouTube search + yt-dlp download
+│   ├── config.py           # Exposes pyproject.toml project metadata via `uv run config`
+│   ├── values.py.example   # Stub credentials used in CI
 │   └── values.py           # Credentials (gitignored) - MUST CREATE
 ├── media/                  # Downloaded MP3 cache (gitignored)
 ├── pyproject.toml          # Project dependencies (PEP 621)
-├── requirements.txt        # Pip fallback
 ├── install/
 │   ├── install.sh                        # Full setup script (uv + systemd)
 │   ├── projects_bathroom-button.service  # systemd unit file
@@ -158,25 +153,6 @@ bathroom-media/
 
 ---
 
-## Deployment (systemd)
-
-The install script handles this, but manually:
-
-```bash
-# Copy service file
-sudo cp install/projects_bathroom-button.service /lib/systemd/system/
-
-# Enable and start
-sudo systemctl daemon-reload
-sudo systemctl enable projects_bathroom-button.service
-sudo systemctl start projects_bathroom-button.service
-
-# View logs
-journalctl -u projects_bathroom-button.service -f
-```
-
----
-
 ## Deprecated: Wireless Button (ESP8266 + MQTT)
 
 An older version used ESP8266 + MQTT for wireless button triggering. This is deprecated in favor of direct GPIO. See [`README.mqtt.md`](README.mqtt.md) for historical reference.
@@ -190,7 +166,7 @@ An older version used ESP8266 + MQTT for wireless button triggering. This is dep
 | No audio | Check `aplay -l` for devices. VLC config: `--alsa-audio-device=hw:0,0` |
 | GPIO permission denied | Run with `sudo` or add user to `gpio` group |
 | Spotify auth fails | Verify `src/values.py` credentials match your Spotify Developer app |
-| Songs not downloading | Ensure ffmpeg installed. Update yt-dlp: `pip install -U yt-dlp` |
+| Songs not downloading | Ensure ffmpeg installed. Update yt-dlp: `uv sync --upgrade-package yt-dlp` |
 | Download hangs | YouTube search rate limits. `POOL_SIZE=2` in `src/download_songs.py` controls parallelism. |
 
 ---
